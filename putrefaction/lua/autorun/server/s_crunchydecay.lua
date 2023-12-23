@@ -13,7 +13,7 @@ hook.Add(
     "CrunchyDecay",
     function(ent, rag)
         if not GetConVar("ragdolldecay_enable"):GetBool() then return end
-        if RagdollDecay_IsFleshMaterial[rag:GetBoneSurfaceProp(0)] then -- Only fleshy mfs shall decay
+        if RagdollDecay_IsFleshMaterial[rag:GetBoneSurfaceProp(0)] then 
             timer.Simple(
                 2 + GetConVar("ragdolldecay_start_time"):GetFloat(),
                 function()
@@ -38,5 +38,3 @@ hook.Add("EntityTakeDamage", "CheckForBurningCorpse", function(target, dmginfo)
         end
     end
 end)
-
-print ("132193819238913891283")

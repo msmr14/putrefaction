@@ -137,7 +137,7 @@ function ENT:StartDecaying()
     -- Loop sound
     local snd = table.Random({"Nasty/DecayLoop_1.wav", "Nasty/DecayLoop_2.wav"})
     self.DecayLoopSound = CreateSound(self, snd)
-    self.DecayLoopSound:PlayEx(math.Rand(0.7, 0.9), math.random(90, 110))
+    self.DecayLoopSound:PlayEx(math.Rand(0.3, 0.6), math.random(90, 110))
     timer.Simple(
         Duration,
         function()
