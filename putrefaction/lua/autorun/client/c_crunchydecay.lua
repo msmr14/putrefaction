@@ -1,157 +1,218 @@
-local EntityRef = FindMetaTable("Entity")
-local DecayTex = Material("decals/decay_material_2")
-local PuddleDecal = Material("decals/decomp_puddle1")
+local ENT = FindMetaTable("Entity")
 
-local BoneShrinkThreshold = {
-    Min = 0.4,
+
+local DecayMaterial = Material("decals/decay_material_2")
+local DecayPuddleMaterial = Material("decals/decomp_puddle1")
+local BoneScaleLimit = {
+    0.4, -- General bone scale limit
     ["ValveBiped.Bip01_Spine1"] = 0.85,
     ["ValveBiped.Bip01_Head1"] = 0.85,
 }
 
-local DecayTimerID = 0
-local DecayingEntities = {}
-local DecayFX = {}
 
-hook.Add(
-    "PostDrawOpaqueRenderables",
-    "EntityDamageOverlay_Draw",
-    function()
-        for _, entity in ipairs(DecayingEntities) do
-            if not IsValid(entity) then
-                table.RemoveByValue(DecayingEntities, entity)
-                return
-            end
+local DecayTimersCount = 0
+local DecayingRagdolls = {}
+local Particles = {}
 
-            local alphaBlend = entity.DecayBlend * (entity:GetColor().a / 255)
-            render.SetBlend(alphaBlend)
-            render.MaterialOverride(DecayTex)
-            entity:DrawModel()
 
-            local skeletonBlend = 1 - alphaBlend
-            if IsValid(entity.SkeletonDecay) and skeletonBlend > 0 then
-                render.SetBlend(skeletonBlend)
-                render.MaterialOverride(DecayTex)
-                entity.SkeletonDecay:DrawModel()
-            end
-
-            render.MaterialOverride(nil)
+--]]==============================================================================================================================[[--
+hook.Add("PostDrawOpaqueRenderables", "PostDrawOpaqueRenderables_EntDamageOverlay", function()
+    -- Overlay --
+    for _, rag in ipairs(DecayingRagdolls) do
+        -- Cuz stoopid client ragdolls don't use call on remove
+        if !IsValid(rag) then
+            table.RemoveByValue(DecayingRagdolls, rag)
+            return
         end
+
+
+        local blend = rag.Decay_MaterialBlend * (rag:GetColor().a/255)
+        render.SetBlend(blend)
+        render.MaterialOverride(DecayMaterial)
+        rag:DrawModel()
+
+        local skele_blend = 1-blend
+
+
+        if IsValid(rag.DecaySkeleton) && skele_blend > 0 then
+            render.SetBlend(skele_blend)
+            render.MaterialOverride(DecayMaterial)
+            rag.DecaySkeleton:DrawModel()
+        end
+
+
+        render.MaterialOverride(nil)
     end
-)
+    --------------------------------=#
+end)
+--]]==============================================================================================================================[[--
+function ENT:StartDecaying()
+    -- Unique timer name, concat with this shit number --
+    DecayTimersCount = DecayTimersCount + 1
 
-function EntityRef:InitiateDecay()
-    DecayTimerID = (DecayTimerID % 100) + 1
-    local TimerLabel = "DecayTimer_" .. DecayTimerID
-    
-    if timer.Exists(TimerLabel) then return end
-    self.BoneScaleFactor = 1
-    self.MaterialBlendFactor = 0
-    self.SkeletonScaleFactor = 0
+    if DecayTimersCount > 100 then
+        DecayTimersCount = 1
+    end
 
-    local RepeatCount = 150
-    local DecayDuration = GetConVar("ragdolldecay_duration"):GetFloat()
-    local Interval = DecayDuration / RepeatCount
+    local TimerName = "DecayTimer"..DecayTimersCount
+    --------------------------------------------------------=#
 
-    timer.Create(
-        TimerLabel,
-        Interval,
-        RepeatCount,
-        function()
-            if not IsValid(self) then
-                timer.Remove(TimerLabel)
-                return
-            end
 
-            if self.BoneScaleFactor >= BoneShrinkThreshold.Min then
-                for boneID = 1, self:GetBoneCount() do
-                    local Limit = BoneShrinkThreshold[self:GetBoneName(boneID)] or 0.6
-                    local scaleVec = Vector(1, 1, 1) * math.Clamp(self.BoneScaleFactor, Limit, 1)
-                    self:ManipulateBoneScale(boneID, scaleVec)
-                end
-            end
+    if timer.Exists(TimerName) then return end -- Too many decaying mfs
 
-            if IsValid(self.SkeletonDecay) then
-                for boneID = 1, self.SkeletonDecay:GetBoneCount() do
-                    self.SkeletonDecay:ManipulateBoneScale(boneID, Vector(1, 1, 1) * self.SkeletonScaleFactor)
-                end
-                if self.SkeletonDecay:GetNoDraw() then self.SkeletonDecay:SetNoDraw(false) end
-            end
 
-            self.MaterialBlendFactor = (RepeatCount - timer.RepsLeft(TimerLabel)) / RepeatCount
-            self.SkeletonScaleFactor = self.MaterialBlendFactor
-            self.BoneScaleFactor = 1 - (self.MaterialBlendFactor * 0.3)
+    self.Decay_BoneScale = 1
+    self.Decay_MaterialBlend = 0
+    self.Decay_Skeleton_BoneScale = 0
+
+
+    -- if IsValid(self.DecaySkeleton) then
+    --     self.DecaySkeleton:SetNoDraw(false)
+    -- end
+
+
+    -- Decay timer --
+    local Reps = 150 
+    local Duration = GetConVar("ragdolldecay_duration"):GetFloat()
+    local Delay = Duration/Reps
+    timer.Create(TimerName, Delay, Reps, function()
+        if !IsValid(self) then
+            timer.Remove(TimerName)
+            return
         end
-    )
 
-    table.insert(DecayingEntities, self)
-    self:CallOnRemove("RemoveFromDecayList", function() table.RemoveByValue(DecayingEntities, self) end)
 
+        if self.Decay_BoneScale >= BoneScaleLimit[1] then
+            for i = 1, self:GetBoneCount() do
+                local ScaleLimit = BoneScaleLimit[ self:GetBoneName(i) ] or 0.6
+                local vec = Vector(1, 1, 1)*math.Clamp(self.Decay_BoneScale, ScaleLimit, 1)
+
+                self:ManipulateBoneScale(i, vec)
+            end
+        end
+
+
+        if IsValid(self.DecaySkeleton) then
+            for i = 1, self.DecaySkeleton:GetBoneCount() do
+                self.DecaySkeleton:ManipulateBoneScale( i, Vector(1, 1, 1)*self.Decay_Skeleton_BoneScale )
+            end
+
+            if self.DecaySkeleton:GetNoDraw() then
+                self.DecaySkeleton:SetNoDraw(false)
+            end
+        end
+
+        
+        self.Decay_MaterialBlend = (Reps - timer.RepsLeft(TimerName)) / Reps
+        self.Decay_Skeleton_BoneScale = self.Decay_MaterialBlend
+        self.Decay_BoneScale = 1 - (self.Decay_MaterialBlend*0.3)
+    end)
+    --------------------------------------------------------=#
+
+
+    -- Register for decay material --
+    table.insert(DecayingRagdolls, self)
+    self:CallOnRemove("RemoveFromDecayingRagdolls", function()
+        table.RemoveByValue(DecayingRagdolls, self)
+    end)
+    ---------------------------------------------=#
+
+
+    -- Only server ragdolls get puddles
+    -- Cuz i couldn't be bothered with client ragdolls
+    -- And who tf cares bout client ragdolls anyway
     if self:GetClass() == "prop_ragdoll" then
-        local rayTrace = util.TraceLine(
-            {
-                start = self:GetPos(),
-                endpos = self:GetPos() - Vector(0, 0, 100),
-                mask = MASK_NPCWORLDSTATIC,
-            }
-        )
+        -- Decay puddle thingy --
+        local tr = util.TraceLine({
+            start = self:GetPos(),
+            endpos = self:GetPos() - Vector(0, 0, 100),
+            mask = MASK_NPCWORLDSTATIC,
+        })
 
-        local FXEmitter = ParticleEmitter(self:GetPos(), true)
-        local GroundParticle = FXEmitter:Add(PuddleDecal, rayTrace.HitPos)
-        local PuddleSize = math.Rand(20, 30)
-        GroundParticle:SetStartSize(0)
-        GroundParticle:SetEndSize(PuddleSize)
-        GroundParticle:SetDieTime(DecayDuration)
-        local angle = rayTrace.HitNormal:Angle()
-        angle:RotateAroundAxis(rayTrace.HitNormal, math.Rand(1, 360))
-        GroundParticle:SetAngles(angle)
+        local Emitter = ParticleEmitter(self:GetPos(), true)
 
-        timer.Simple(
-            DecayDuration - 0.15,
-            function()
-                if GroundParticle then
-                    GroundParticle:SetDieTime(10000000)
-                    GroundParticle:SetStartSize(PuddleSize)
-                    GroundParticle:SetEndSize(PuddleSize)
-                end
+        local Particle = Emitter:Add(DecayPuddleMaterial, tr.HitPos)
+        local Scale = math.Rand(20, 30)
+        Particle:SetStartSize(0)
+        Particle:SetEndSize(Scale)
+        Particle:SetDieTime(Duration)
+
+        local ang = tr.HitNormal:Angle()
+        ang:RotateAroundAxis(tr.HitNormal, math.Rand(1, 360))
+        Particle:SetAngles(ang)
+
+        timer.Simple(Duration-0.15, function()
+            if Particle then
+                Particle:SetDieTime(10000000)
+                Particle:SetStartSize(Scale)
+                Particle:SetEndSize(Scale)
             end
-        )
+        end)
 
-        FXEmitter:Finish()
-        self:CallOnRemove("CleanupDecayPuddle", function() if GroundParticle then GroundParticle:SetLifeTime(20000000) end end)
+        Emitter:Finish()
+
+        self:CallOnRemove("RemoveDecayPuddle", function()
+            if Particle then
+                Particle:SetLifeTime(20000000)
+            end
+        end)
+        ---------------------------------------------=#
     end
 
-    self:CallOnRemove(
-        "BreakDownCorpse",
-        function()
-            local soundFile = table.Random({"Nasty/RemoveCorpse_1.wav", "Nasty/RemoveCorpse_2.wav", "Nasty/RemoveCorpse_3.wav"})
-            self:EmitSound(soundFile, 80, math.random(90, 110))
-            ParticleEffect("slime_splash_01", self:GetPos(), self:GetAngles())
-            for boneID = 1, self:GetBoneCount() do
-                local bonePos = self:GetBonePosition(boneID)
-                if bonePos and math.random(1, 2) == 1 then ParticleEffect("blood_zombie_split", bonePos, AngleRand()) end
-            end
-            if self.LoopSound then self.LoopSound:Stop() end
-        end
-    )
 
-    local decaySound = table.Random({"Nasty/DecayLoop_1.wav", "Nasty/DecayLoop_2.wav"})
-    self.LoopSound = CreateSound(self, decaySound)
-    self.LoopSound:PlayEx(math.Rand(0.7, 0.9), math.random(90, 110))
-    timer.Simple(
-        DecayDuration,
-        function()
-            if not IsValid(self) then return end
-            if self.LoopSound then self.LoopSound:Stop() end
+    -- Particle and sound on remove
+    self:CallOnRemove("DecayCorpseBreak", function()
+        local snd = table.Random({"Nasty/RemoveCorpse_1.wav", "Nasty/RemoveCorpse_2.wav", "Nasty/RemoveCorpse_3.wav"})
+        self:EmitSound(snd, 80, math.random(90, 110))
+
+
+        ParticleEffect("slime_splash_01", self:GetPos(), self:GetAngles())
+
+
+        for i = 1, self:GetBoneCount() do
+            local pos = self:GetBonePosition(i)
+            if pos && math.random(1, 2)==1 then
+                ParticleEffect("blood_zombie_split", self:GetBonePosition(i), AngleRand())
+            end
         end
-    )
+
+
+        self.DecayLoopSound:Stop()
+    end)
+
+
+    -- Loop sound
+    local snd = table.Random({"Nasty/DecayLoop_1.wav", "Nasty/DecayLoop_2.wav"})
+    self.DecayLoopSound = CreateSound(self, snd)
+    self.DecayLoopSound:PlayEx( math.Rand(0.7, 0.9), math.random(90, 110) )
+
+    timer.Simple(Duration, function()
+        if !IsValid(self) then return end
+        if !self.DecayLoopSound then return end
+
+        self.DecayLoopSound:Stop()
+    end)
 end
+--]]==============================================================================================================================[[--
+net.Receive("RagdollStartDecaying", function()
+    local rag = net.ReadEntity()
+    local skeleton = net.ReadEntity()
+    rag.DecaySkeleton = skeleton
 
-net.Receive(
-    "RagdollStartDecaying",
-    function()
-        local decayedEntity = net.ReadEntity()
-        local skeletonEntity = net.ReadEntity()
-        decayedEntity.SkeletonDecay = skeletonEntity
-        if IsValid(decayedEntity) then decayedEntity:InitiateDecay() end
+    if IsValid(rag) then
+        rag:StartDecaying()
     end
-)
+end)
+--]]==============================================================================================================================[[--
+-- This shit sucks
+-- hook.Add("CreateClientsideRagdoll", "CrunchyDecay", function( ent, rag )
+--     if !GetConVar("ragdolldecay_enable"):GetBool() then return end
+--     if !RagdollDecay_IsFleshMaterial[ ent:GetBoneSurfaceProp(0) ] then return end
+
+--     timer.Simple(2+GetConVar("ragdolldecay_start_time"):GetFloat(), function()
+--         if IsValid(rag) then
+--             rag:StartDecaying()
+--         end
+--     end)
+-- end)
+--]]==============================================================================================================================[[--
