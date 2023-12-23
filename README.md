@@ -1,4 +1,4 @@
-🌟 **Система Гниения Трупов** 🌟
+**Система Гниения Трупов**
 
 Как это работает? 👀
 
@@ -18,7 +18,7 @@
 
 ---
 
-🌟 **Corpse Rotting System** 🌟
+**Corpse Rotting System**
 
 How does it work? 👀
 
