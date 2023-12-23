@@ -46,5 +46,8 @@ Why it's necessary. 🤔
 This is an edited version of the addon https://steamcommunity.com/sharedfiles/filedetails/?id=3099112386. I can remove this repository at the request of the authors.
 
 <img width="1680" alt="Снимок экрана 2023-12-23 в 21 30 25" src="https://github.com/msmr14/putrefaction/assets/125466656/30d095e8-699b-40af-b06c-c4d261740af6">
+<img width="1680" alt="Снимок экрана 2023-12-23 в 21 33 20" src="https://github.com/msmr14/putrefaction/assets/125466656/2da958d1-4c42-4e66-9675-3984fc0766dc">
+
+
 
 
