@@ -24,3 +24,19 @@ hook.Add(
         end
     end
 )
+
+hook.Add("EntityTakeDamage", "CheckForBurningCorpse", function(target, dmginfo)
+    if target:IsRagdoll() and dmginfo:IsDamageType(DMG_BURN) then
+        if not target.BurnToSkeletonTimer then
+            target.BurnToSkeletonTimer = true
+
+            timer.Simple(30, function()
+                if IsValid(target) then
+                    target:SetModel("models/player/skeleton.mdl") 
+                end
+            end)
+        end
+    end
+end)
+
+print ("132193819238913891283")
