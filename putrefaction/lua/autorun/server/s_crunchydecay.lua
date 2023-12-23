@@ -1,12 +1,10 @@
 util.AddNetworkString("RagdollStartDecaying")
 local EntityMeta = FindMetaTable("Entity")
 
-
 function EntityMeta:InitiateDecay()
     net.Start("RagdollStartDecaying")
     net.WriteEntity(self)
-
-    net.WriteEntity(self.DecaySkeleton or self)
+    net.WriteEntity(self.SkeletonDecay)
     net.Broadcast()
 
     if GetConVar("ragdolldecay_remove_after_decay_time"):GetBool() then
@@ -20,7 +18,6 @@ end
 hook.Add("CreateEntityRagdoll", "CrunchyDecay_EntityRagdoll", function(owner, ragdoll)
     if not GetConVar("ragdolldecay_enable"):GetBool() then return end
     if not IsValid(ragdoll) or not ragdoll:IsRagdoll() then return end
-
 
     local fleshMaterials = {
         ["flesh"] = true,
