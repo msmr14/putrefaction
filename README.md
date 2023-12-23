@@ -2,9 +2,9 @@
 
 Как это работает? 👀
 
-• 🕒 Первый час после смерти: Начинается захватывающий процесс разложения. Это лишь первый шаг в пути из 18 стадий гниения.
-• 🕑 Второй час: Тело продолжает своё путешествие по миру гниения, медленно, но верно проходя через различные этапы разложения.
-• 🕒 Конец второго часа: И вот, тело полностью разложилось, достигнув 18-й и последней стадии. 
+• 🕒 Первый час после смерти: Тело начинает процесс разложения. Это первая из 18 стадий гниения.
+• 🕑 Второй час: Тело продолжает гнить, постепенно проходя через различные стадии разложения
+• 🕒 Конец второго часа: Тело полностью разлагается, достигая 18-й стадии разложения.
 
 [🎥 Демонстрация каждой стадии здесь - https://i.imgur.com/sVQuOWF.mp4]
 
@@ -20,18 +20,18 @@
 
 🌟 **Corpse Rotting System** 🌟
 
-How it works? 👀
+How does it work? 👀
 
-- 🕒 First hour after death: The thrilling decomposition process begins. It's the first step in an 18-stage journey.
-- 🕑 Second hour: The body continues its journey through the world of decay, slowly but surely passing through various stages of decomposition.
-- 🕒 End of the second hour: And there it is, the body has fully decomposed, reaching the 18th and final stage.
+- 🕒 First hour after death: The body begins the decomposition process. This is the first of 18 stages of putrefaction.
+- 🕑 Second hour: The body continues to decay, gradually going through the various stages of decomposition
+- 🕒 End of second hour: The body decomposes completely, reaching the 18th stage of decomposition.
 
 [🎥 Demonstration of each stage here - https://i.imgur.com/sVQuOWF.mp4]
 
-Why it's needed? 🤔
+Why it's necessary. 🤔
 
-1) 🎭 Enhanced RP Depth: Adds an incredible level of detail to the game world, allowing players to truly immerse themselves in the atmosphere.
-2) 🕵️‍♂️ Investigative and Detective Elements: Brings novelty to in-game investigations, enabling the determination of a character's time of death, opening new possibilities for detectives.
-3) 🌍 Dynamic Environment Interaction: Changing body states over time forces players to make decisions based on the current situation, increasing engagement and tension in the game. (Krimers, be alert 😉)
-4) 💡 Moral and Ethical Dilemmas: It's pretty clear. The body looks eerily realistic and evokes far more emotions than the average ragdoll.
-5) 🌌 Atmosphere and Immersion: Enhances the sense of reality and presence in the game world.
+1) 🎭 RP Deepening: This adds an incredible level of detail to the game's world, allowing players to truly immerse themselves in the atmosphere.
+2) 🕵️‍♂️ Investigative and Detective Elements: Brings novelty to in-game investigations by allowing you to determine the time of death of a character, which opens up new possibilities for detectives.
+3) 🌍 Dynamic interaction with the environment: Changing the state of corpses over time forces players to make decisions based on the current situation, increasing engagement and tension in the game. (Cramers, be on your guard 😉 )
+4) 💡 Moral and Ethical Dilemmas: This one is clear. The body looks eerily realistic and evokes much more emotion than the average ragdoll.
+5) 🌌 Atmosphere and Immersion: Enhances the feeling of reality and presence in the game world.
