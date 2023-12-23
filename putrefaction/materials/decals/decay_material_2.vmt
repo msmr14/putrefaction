@@ -1,0 +1,22 @@
+"VertexLitGeneric"
+{
+	"$basetexture"	"Decals/decay_material_2"
+	"$surfaceprop"	"alienflesh"
+	"$bumpmap"	"Decals/decay_material_2_n"
+	"$translucent"	1
+	"$halflambert"	1
+	"$model"	1
+	//phong properties
+	"$phong"	"1"
+	"$phongboost"	"1"
+	"$phongexponent" "10"
+	//"$phongexponenttexture"	""
+	"$phongfresnelranges"	"[.2 .4 1]"
+		"$rimlight" "1"
+	"$rimlightexponent" "2"
+	//env map stuff
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[.05 .05 .05]"
+	"$normalmapalphaenvmapmask" "1"		
+	"$envmapfresnel" "1"
+}
